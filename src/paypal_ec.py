@@ -6,15 +6,16 @@ ENDPOINT_SANDBOX = "https://api-3t.sandbox.paypal.com/nvp"
 
 
 class ExpressCheckout(object):
+    """ Wrapper for the functions that are necessary for buying
+        with PayPal ExpressCheckout """
 
     VERSION = "109.0"
 
-    def __init__(self, username, password, signature, sandbox=False):
+    def __init__(self, username, password, signature, endpoint=ENDPOINT_SANDBOX):
         self.username = username
         self.password = password
         self.signature = signature
-        if sandbox:
-            self.endpoint = ENDPOINT_SANDBOX
+        self.endpoint = endpoint
 
     def _post_data(self, url, data):
         """ Posts data to a given url
@@ -24,6 +25,7 @@ class ExpressCheckout(object):
                 data: a string or a dict containing data
                     if string, must be urlencoded
         """
+
         if type(data) == dict:
             data = urllib.urlencode(data)
         req = urllib2.Request(url, data)
@@ -60,8 +62,9 @@ class ExpressCheckout(object):
             return True if value in CURRENCY_IDS else False
 
     def _set_express_checkout_request(self, amount, currency_id,return_url,
-            cancel_url, method="SetExpressCheckout"):
+            cancel_url):
         """ Creates a proper request to be posted """
+
         if self._validate_field("amount", amount) and\
             self._validate_field("currency_id", currency_id):
 
@@ -131,12 +134,11 @@ class ExpressCheckout(object):
         return urllib.urlencode(obj_for_request)
 
 
-    def setExpressCheckout(self, amount, currency_id, return_url, cancel_url, 
-                method="SetExpressCheckout"):
+    def setExpressCheckout(self, amount, currency_id, return_url, cancel_url):
         """ Performs the setExpressCheckout request and returns the
             response in a python dict"""
         data = self._set_express_checkout_request(amount, currency_id, \
-            return_url, cancel_url, method)
+            return_url, cancel_url)
         return urlparse.parse_qs(self._post_data(self.endpoint, data))
 
     def getExpressCheckoutDetails(self, token):
@@ -164,20 +166,16 @@ class ExpressCheckout(object):
         return urlparse.parse_qs(self._post_data(self.endpoint, data)) 
 
 
-def main():
-    username = "ciro9758_api1.gmail.com"
-    password = 1390922883
-    signature = "AFcWxV21C7fd0v3bYYYRCpSSRl31AFdl6Gwn9pQHqzliaz6mNHjRfG.k"
+# def main():
+#     username = "USERNAME"
+#     password = "PASSWORD"
+#     signature = "SIGNATURE"
 
-    ec = ExpressCheckout(username,password,signature,True)
-    response =  ec.setExpressCheckout("20.00","BRL","http://cirocosta.com/return",\
-        "http://cirocosta.com/cancel")
-    print response
-    if response['ACK'] == ["Success"]:
-        token = response['TOKEN']
-        reresponse = ec.getExpressCheckoutDetails(token[0])
-        print reresponse
-
-
-if __name__ == "__main__":
-    main()
+#     ec = ExpressCheckout(username,password,signature,True)
+#     response =  ec.setExpressCheckout("20.00","BRL","http://cirocosta.com/return",\
+#         "http://cirocosta.com/cancel")
+#     print response
+#     if response['ACK'] == ["Success"]:
+#         token = response['TOKEN']
+#         reresponse = ec.getExpressCheckoutDetails(token[0])
+#         print reresponse
