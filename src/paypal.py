@@ -12,7 +12,7 @@ class ExpressCheckout(object):
     def __init__(self, username, password, signature, sandbox=False):
         self.username = username
         self.password = password
-        self.signature  = signature
+        self.signature = signature
         if sandbox:
             self.endpoint = ENDPOINT_SANDBOX
 
@@ -60,7 +60,7 @@ class ExpressCheckout(object):
             return True if value in CURRENCY_IDS else False
 
     def _set_express_checkout_request(self, amount, currency_id,return_url,
-            cancel_url):
+            cancel_url, method="SetExpressCheckout"):
         """ Creates a proper request to be posted """
         if self._validate_field("amount", amount) and\
             self._validate_field("currency_id", currency_id):
@@ -108,11 +108,35 @@ class ExpressCheckout(object):
         }
         return urllib.urlencode(obj_for_request)
 
-    def setExpressCheckout(self, amount, currency_id, return_url, cancel_url):
+    def _set_create_recurring_payments_profile(self, method, profilestartdate, 
+            desc, billingperiod, billingfrequency, amt, currencycode, acct, 
+            email, street, street2, city, state, countrycode, zip_code):
+        obj_for_request = {
+            "METHOD": method,
+            "PROFILESTARTDATE ": profilestartdate,
+            "DESC ": desc,
+            "BILLINGPERIOD ": billingperiod,
+            "BILLINGFREQUENCY ": billingfrequency,
+            "AMT ": amt,
+            "CURRENCYCODE ": currencycode,
+            "ACCT ": acct,
+            "EMAIL ": email,
+            "STREET ": street,
+            "STREET2" : street2,
+            "CITY" : city,
+            "STATE" : state,
+            "COUNTRYCODE" : countrycode,
+            "ZIP": zip_code,
+        }
+        return urllib.urlencode(obj_for_request)
+
+
+    def setExpressCheckout(self, amount, currency_id, return_url, cancel_url, 
+                method="SetExpressCheckout"):
         """ Performs the setExpressCheckout request and returns the
             response in a python dict"""
         data = self._set_express_checkout_request(amount, currency_id, \
-            return_url, cancel_url)
+            return_url, cancel_url, method)
         return urlparse.parse_qs(self._post_data(self.endpoint, data))
 
     def getExpressCheckoutDetails(self, token):
@@ -127,6 +151,17 @@ class ExpressCheckout(object):
         data = self._set_do_express_checkout_payment_request(payerid, token,\
             amount)
         return urlparse.parse_qs(self._post_data(self.endpoint, data))
+
+    def CreateRecurringPaymentsProfile(self, method, profilestartdate, 
+            desc, billingperiod, billingfrequency, amt, currencycode, acct, 
+            email, street, street2, city, state, countrycode, zip_code):
+        """ Sends the request for creating a recurring payments
+            profile """
+        data = self._set_create_recurring_payments_profile(method, 
+            profilestartdate, desc, billingperiod, billingfrequency, amt, 
+            currencycode, acct, email, street, street2, city, state, 
+            countrycode, zip_code)
+        return urlparse.parse_qs(self._post_data(self.endpoint, data)) 
 
 
 def main():
