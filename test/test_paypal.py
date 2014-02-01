@@ -1,13 +1,20 @@
 import unittest
-import paypal
+import paypal_ec
+import samples
+import urllib
+
+# MISSING TESTS FOR CreateRecurringPaymentsProfile
 
 class TestExpressCheckout(unittest.TestCase):
+    """ Testing for the functions that are used just internaly.
+        The public methods are doctested so that we provide a
+        more rich documentation on how to use it """
 
     def setUp(self):
-        self.ec = paypal.ExpressCheckout("sdk-three_api1.sdk.com",
+        self.ec = paypal_ec.ExpressCheckout("sdk-three_api1.sdk.com",
             "QFZCWN5HZM8VBG7Q", 
             "A-IzJhZZjhg29XQ2qnhapuwxIDzyAZQ92FRP5dqBzVesOkzbdUONzmOU",
-            True) 
+            True)
 
     def tearDown(self):
         pass
@@ -18,24 +25,21 @@ class TestExpressCheckout(unittest.TestCase):
         self.assertRaises(ValueError, self.ec._validate_field,"amount", "20,00")
         self.assertRaises(ValueError, self.ec._validate_field,"amount", "ahaha")
 
-    # def test_set_express_checkout_request(self):
-    #     sample_true = """
-    #         METHOD=SetExpressCheckout
-    #         VERSION=XX.0
-    #         USER=sdk-three_api1.sdk.com
-    #         PWD=QFZCWN5HZM8VBG7Q
-    #         SIGNATURE=A-IzJhZZjhg29XQ2qnhapuwxIDzyAZQ92FRP5dqBzVesOkzbdUONzmOU
-    #         PAYMENTREQUEST_0_AMT=20.00
-    #         PAYMENTREQUEST_0_CURRENCYCODE=BRL
-    #         RETURNURL=http://www.meuurl.com/retorno
-    #         CANCELURL=http://www.meuurl.com/cancel
-    #         PAYMENTREQUEST_0_PAYMENTACTION=Sale
-    #     """
-    #     should_be_correct = self.ec.set_express_checkout_request("20.00", "BRL",
-    #         "http://www.meuurl.com/retorno", "http://www.meuurl.com/cancel")
-    #     self.assertEqual(sample_true, should_be_correct)
+    def test_set_express_checkout_request(self):
+        sample_true = samples.sample_set_express_checkout_request
+        should_equal = self.ec._set_express_checkout_request("20.00","BRL",\
+            "http://myurl.com/return", "http://myurl.com/cancel")
+        self.assertEqual(urllib.urlencode(sample_true), should_equal)
 
+    def test_set_get_express_checkout_details_request(self):
+        sample_true = samples.sample_get_express_checkout_details_request
+        sample_true = urllib.urlencode(sample_true)
+        should = self.ec._set_get_express_checkout_details_request("um_token")
+        self.assertEqual(sample_true, should)
 
+    # def test_do_express_checkout_payment_request(self):
+        # sample_true = sample_do_express_checkout_payment_request
+        # TODO
 
 if __name__ == "__main__":
     unittest.main()
