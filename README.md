@@ -1,4 +1,4 @@
-PayPal Hackathon related
+PayPal Hackathon related [![Build Status](https://travis-ci.org/cirocosta/paypal-expresscheckout-python.png?branch=master)](https://travis-ci.org/cirocosta/paypal-expresscheckout-python)
 ===
 
 QuickStart
